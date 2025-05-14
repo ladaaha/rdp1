@@ -1,4 +1,4 @@
-name: Windows RDP + RustDesk (sem ngrok)
+name: Windows RDP + RustDesk
 
 on: workflow_dispatch
 
@@ -17,15 +17,19 @@ jobs:
 
       - name: Baixar RustDesk
         run: |
+          cd $env:USERPROFILE
           certutil -urlcache -split -f "https://github.com/rustdesk/rustdesk/releases/download/1.2.1/rustdesk-1.2.1-x86_64.exe" rustdesk.exe
 
       - name: Iniciar RustDesk
-        run: start "" "rustdesk.exe"
+        run: |
+          cd $env:USERPROFILE
+          Start-Process ".\rustdesk.exe"
+        shell: powershell
 
       - name: Aguardar e mostrar ID/senha do RustDesk
         shell: powershell
         run: |
-          Start-Sleep -Seconds 15  # tempo para o RustDesk iniciar
+          Start-Sleep -Seconds 15
           $configDir = "$env:APPDATA\RustDesk\config\RustDesk"
           $idPath = Join-Path $configDir "id"
           $passwordPath = Join-Path $configDir "password"
