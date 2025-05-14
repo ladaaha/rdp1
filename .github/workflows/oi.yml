@@ -1,4 +1,4 @@
-name: Windows RDP + RustDesk
+name: Windows RDP + RustDesk + AutoClick Script
 
 on: workflow_dispatch
 
@@ -15,6 +15,9 @@ jobs:
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
           Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "@cyb3rking" -Force)
 
+      - name: Instalar pyautogui
+        run: pip install pyautogui
+
       - name: Baixar RustDesk
         run: |
           cd $env:USERPROFILE
@@ -26,7 +29,7 @@ jobs:
           Start-Process ".\rustdesk.exe"
         shell: powershell
 
-      - name: Aguardar e mostrar ID/senha do RustDesk
+      - name: Esperar e Mostrar ID/Senha do RustDesk
         shell: powershell
         run: |
           Start-Sleep -Seconds 15
@@ -47,3 +50,29 @@ jobs:
           } else {
               Write-Output "❌ Senha do RustDesk não encontrada ainda."
           }
+
+      - name: Criar e Executar AutoClick Script
+        run: |
+          echo @echo off > run_clicks.bat
+          echo python -c "import pyautogui as pag; pag.click(785, 17, duration=2)" >> run_clicks.bat
+          echo python -c "import pyautogui as pag; pag.click(903, 64, duration=2)" >> run_clicks.bat
+          echo start "" /MAX "C:\Users\Public\Desktop\VMQuickConfig" >> run_clicks.bat
+          echo python -c "import pyautogui as pag; pag.click(147, 489, duration=2)" >> run_clicks.bat
+          echo python -c "import pyautogui as pag; pag.click(156, 552, duration=2)" >> run_clicks.bat
+          echo python -c "import pyautogui as pag; pag.click(587, 14, duration=2)" >> run_clicks.bat
+          echo echo .......................................................... >> run_clicks.bat
+          echo echo .....Brought By The Disala................................ >> run_clicks.bat
+          echo echo .......................................................... >> run_clicks.bat
+          echo echo ......#####...######...####....####...##.......####....... >> run_clicks.bat
+          echo echo ......##..##....##....##......##..##..##......##..##...... >> run_clicks.bat
+          echo echo ......##..##....##.....####...######..##......######...... >> run_clicks.bat
+          echo echo ......##..##....##........##..##..##..##......##..##...... >> run_clicks.bat
+          echo echo ......#####...######...####...##..##..######..##..##...... >> run_clicks.bat
+          echo echo .......................................................... >> run_clicks.bat
+          echo echo ..Youtube Video Tutorial - https://youtu.be/u3hHCQPACmY .. >> run_clicks.bat
+          echo echo .......................................................... >> run_clicks.bat
+          echo echo ........ Subscribe To Our Official Method Channel ........ >> run_clicks.bat
+          echo echo .......................................................... >> run_clicks.bat
+          echo echo Your Device Name: %%username%%@%%computername%% >> run_clicks.bat
+
+          cmd /c run_clicks.bat
