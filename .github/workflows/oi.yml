@@ -1,0 +1,53 @@
+name: Windows RDP + RustDesk
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 9999
+
+    steps:
+      - name: Instalar Ngrok
+        run: choco install ngrok
+
+      - name: Autenticar Ngrok
+        run: ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+
+      - name: Ativar RDP
+        run: |
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
+          Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "@cyb3rking" -Force)
+
+      - name: Criar túnel Ngrok para RDP
+        run: ngrok tcp 3389
+
+      - name: Baixar RustDesk
+        run: |
+          certutil -urlcache -split -f "https://github.com/rustdesk/rustdesk/releases/download/1.2.1/rustdesk-1.2.1-x86_64.exe" rustdesk.exe
+
+      - name: Iniciar RustDesk
+        run: start "" "rustdesk.exe"
+
+      - name: Esperar e Mostrar ID/Senha do RustDesk
+        shell: powershell
+        run: |
+          Start-Sleep -Seconds 10  # esperar RustDesk abrir
+          $configPath = "$env:APPDATA\RustDesk\config\RustDesk\id"
+          $passwordPath = "$env:APPDATA\RustDesk\config\RustDesk\password"
+
+          if (Test-Path $configPath) {
+              Write-Output "RustDesk ID:"
+              Get-Content $configPath
+          } else {
+              Write-Output "Arquivo de ID não encontrado."
+          }
+
+          if (Test-Path $passwordPath) {
+              Write-Output "RustDesk Senha:"
+              Get-Content $passwordPath
+          } else {
+              Write-Output "Arquivo de senha não encontrado."
+          }
